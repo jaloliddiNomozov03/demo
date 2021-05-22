@@ -1,0 +1,33 @@
+package zako.uz.demo.entity;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import javax.persistence.*;
+import java.util.Date;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+public class Attachment {
+    @JsonIgnore
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String name;
+    private Long size;
+    private String hashCode;
+    private String contentType;
+    @JsonIgnore
+    private String uploadPath;
+    @Column(nullable = false, updatable = false)
+    @CreationTimestamp
+    private Date createAt;
+    @UpdateTimestamp
+    private Date updateAt;
+}
