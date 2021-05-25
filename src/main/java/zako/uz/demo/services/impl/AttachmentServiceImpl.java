@@ -37,7 +37,7 @@ public class AttachmentServiceImpl implements AttachmentService {
     @Value("${upload.path}")
     private String filePath;
     @Override
-    public ApiResponse save(MultipartFile multipartFile, Boolean auth) {
+    public ApiResponse save(MultipartFile multipartFile) {
         try {
             Attachment attachment = new Attachment();
             attachment.setContentType(multipartFile.getContentType());

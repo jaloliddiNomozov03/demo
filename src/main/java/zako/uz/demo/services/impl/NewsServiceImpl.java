@@ -18,9 +18,12 @@ public class NewsServiceImpl implements NewsService {
     @Autowired
     private AttachmentService attachmentService;
     @Override
-    public ApiResponse saveNews(News news) {
+    public ApiResponse saveNews(NewsReq newsReq) {
         try {
-            newsRepository.save(news);
+            News news = new News();
+            news.setDescriptionUz(newsReq.getDescriptionUz());
+            news.setDescriptionRu(newsReq.getDescriptionRu());
+            news.setAttachment(attachmentService.findByHashCode(newsReq.getHashCode()));
             return new ApiResponse(Boolean.TRUE,"Successfully saved");
         }catch (Exception e){
             return new ApiResponse(Boolean.FALSE,"Failed");
@@ -32,12 +35,8 @@ public class NewsServiceImpl implements NewsService {
         try {
             News newNews = newsRepository.findById(newsId)
                     .orElseThrow(()->new ResourceNotFoundException("News","id", newsId));
-            newNews.setId(newsId);
-            if (newNews.getAttachment()!=null){
-                newNews.setAttachment(attachmentService.findByHashCode(newsReq.getHashCode()));
-            }else {
-                newNews.setAttachment(null);
-            }
+//            String hashId = newNews.getAttachment().getHashCode();
+            newNews.setAttachment(attachmentService.findByHashCode(newsReq.getHashCode()));
             newNews.setDescriptionUz(newsReq.getDescriptionUz());
             newNews.setDescriptionRu(newsReq.getDescriptionRu());
             newsRepository.save(newNews);
@@ -50,7 +49,10 @@ public class NewsServiceImpl implements NewsService {
     @Override
     public ApiResponse deleteNews(Long newsId) {
         try {
+            String hashId = newsRepository.findById(newsId)
+                    .orElseThrow(()->new ResourceNotFoundException("News","Id",newsId)).getAttachment().getHashCode();
             newsRepository.deleteById(newsId);
+            attachmentService.delete(hashId);
             return new ApiResponse(Boolean.TRUE,"Success deleted");
         }catch (Exception e){
             return new ApiResponse(Boolean.FALSE,"Failed!");

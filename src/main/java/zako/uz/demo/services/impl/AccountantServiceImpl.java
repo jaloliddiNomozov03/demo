@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import zako.uz.demo.entity.Accountant;
 import zako.uz.demo.exception.ResourceNotFoundException;
+import zako.uz.demo.payload.AccountantRequest;
 import zako.uz.demo.payload.ApiResponse;
 import zako.uz.demo.repository.AccountantRepository;
 import zako.uz.demo.services.AccountantService;
@@ -17,8 +18,13 @@ public class AccountantServiceImpl implements AccountantService {
     @Autowired
     private AttachmentService attachmentService;
     @Override
-    public ApiResponse saveAccountant(Accountant accountant) {
+    public ApiResponse saveAccountant(AccountantRequest accountantRequest) {
         try {
+            Accountant accountant = new Accountant();
+            accountant.setReportAttach(attachmentService.findByHashCode(accountantRequest.getReportAttachHashCode()));
+            accountant.setAccountantAttach(attachmentService.findByHashCode(accountantRequest.getAccountantAttachHashCode()));
+            accountant.setTextRu(accountantRequest.getTextRu());
+            accountant.setTextUz(accountantRequest.getTextUz());
             accountantRepository.save(accountant);
             return new ApiResponse(Boolean.TRUE,"Successfully saved");
         }catch (Exception e){
@@ -27,23 +33,14 @@ public class AccountantServiceImpl implements AccountantService {
     }
 
     @Override
-    public ApiResponse updateAccountant(Accountant accountant, Long accountantId) {
+    public ApiResponse updateAccountant(AccountantRequest accountantRequest, Long accountantId) {
         try {
             Accountant newAccountant = accountantRepository.findById(accountantId)
-                    .orElseThrow(()->new ResourceNotFoundException("Advertisement","id", accountant));
-            newAccountant.setId(accountantId);
-            if (accountant.getAccountantAttach()!=null){
-                newAccountant.setAccountantAttach(attachmentService.findByHashCode(accountant.getAccountantAttach().getHashCode()));
-            }else {
-                newAccountant.setAccountantAttach(null);
-            }
-            if (accountant.getReportAttach()!=null){
-                newAccountant.setReportAttach(attachmentService.findByHashCode(accountant.getReportAttach().getHashCode()));
-            }else {
-                newAccountant.setReportAttach(null);
-            }
-            newAccountant.setTextUz(accountant.getTextUz());
-            newAccountant.setTextRu(accountant.getTextRu());
+                    .orElseThrow(()->new ResourceNotFoundException("Advertisement","id", accountantId));
+            newAccountant.setReportAttach(attachmentService.findByHashCode(accountantRequest.getReportAttachHashCode()));
+            newAccountant.setAccountantAttach(attachmentService.findByHashCode(accountantRequest.getAccountantAttachHashCode()));
+            newAccountant.setTextRu(accountantRequest.getTextRu());
+            newAccountant.setTextUz(accountantRequest.getTextUz());
             accountantRepository.save(newAccountant);
             return new ApiResponse(Boolean.TRUE,"Success");
         }catch (Exception e){
@@ -54,7 +51,10 @@ public class AccountantServiceImpl implements AccountantService {
     @Override
     public ApiResponse deleteAccountant(Long accountantId) {
         try {
+            Accountant accountant = accountantRepository.getById(accountantId);
             accountantRepository.deleteById(accountantId);
+            attachmentService.delete(accountant.getAccountantAttach().getHashCode());
+            attachmentService.delete(accountant.getReportAttach().getHashCode());
             return new ApiResponse(Boolean.TRUE,"Delete success");
         }catch (Exception e){
             return new ApiResponse(Boolean.FALSE,"Failed");

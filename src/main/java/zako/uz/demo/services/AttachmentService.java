@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public interface AttachmentService {
-    ApiResponse save(MultipartFile multipartFile, Boolean auth);
+    ApiResponse save(MultipartFile multipartFile);
     ApiResponse delete(String hashCode);
     Attachment findByHashCode(String hashCode);
     ResponseEntity<InputStreamResource> getFile(String hashCode, HttpServletResponse response) throws IOException;

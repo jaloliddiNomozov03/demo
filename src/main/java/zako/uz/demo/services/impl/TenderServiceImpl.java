@@ -2,9 +2,11 @@ package zako.uz.demo.services.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import zako.uz.demo.entity.Tenders;
 import zako.uz.demo.exception.ResourceNotFoundException;
 import zako.uz.demo.payload.ApiResponse;
+import zako.uz.demo.payload.TenderRequest;
 import zako.uz.demo.repository.TendersRepository;
 import zako.uz.demo.services.AttachmentService;
 import zako.uz.demo.services.TenderService;
@@ -18,8 +20,14 @@ public class TenderServiceImpl implements TenderService {
     @Autowired
     private AttachmentService attachmentService;
     @Override
-    public ApiResponse saveTender(Tenders tenders) {
+    public ApiResponse saveTender(TenderRequest tenderRequest) {
         try {
+            Tenders tenders = new Tenders();
+            tenders.setAttachment(attachmentService.findByHashCode(tenderRequest.getHashCode()));
+            tenders.setFinishedDate(tenderRequest.getFinishedDate());
+            tenders.setStartDate(tenderRequest.getStartDate());
+            tenders.setTitleRu(tenderRequest.getTitleRu());
+            tenders.setTitleUz(tenderRequest.getTitleUz());
             tendersRepository.save(tenders);
             return new ApiResponse(Boolean.TRUE,"Success");
         }catch (Exception e){
@@ -29,16 +37,15 @@ public class TenderServiceImpl implements TenderService {
     }
 
     @Override
-    public ApiResponse updateTender(Tenders tenders, Long tenderId) {
+    public ApiResponse updateTender(TenderRequest tenderRequest, Long tenderId) {
         try {
-            Tenders newTender = tendersRepository.findById(tenderId).get();
-            if (tenders.getAttachment()!=null){
-                newTender.setAttachment(attachmentService.findByHashCode(tenders.getAttachment().getHashCode()));
-            }
-            newTender.setTitleUz(tenders.getTitleUz());
-            newTender.setTitleRu(tenders.getTitleRu());
-            newTender.setStartDate(tenders.getStartDate());
-            newTender.setFinishedDate(tenders.getFinishedDate());
+            Tenders newTender = tendersRepository.findById(tenderId)
+                    .orElseThrow(()->new ResourceNotFoundException("Tenders","Id", tenderId));
+            newTender.setTitleUz(tenderRequest.getTitleUz());
+            newTender.setTitleRu(tenderRequest.getTitleRu());
+            newTender.setStartDate(tenderRequest.getStartDate());
+            newTender.setFinishedDate(tenderRequest.getFinishedDate());
+            newTender.setAttachment(attachmentService.findByHashCode(tenderRequest.getHashCode()));
             tendersRepository.save(newTender);
             return new ApiResponse(Boolean.TRUE,"Success");
         }catch (Exception e){
@@ -50,7 +57,10 @@ public class TenderServiceImpl implements TenderService {
     @Override
     public ApiResponse deleteTender(Long tenderId) {
         try {
+            String hashCode = tendersRepository.findById(tenderId).
+                    orElseThrow(()->new ResourceNotFoundException("Tender","Id",tenderId)).getAttachment().getHashCode();
             tendersRepository.deleteById(tenderId);
+            attachmentService.delete(hashCode);
             return new ApiResponse(Boolean.TRUE,"Success");
         }catch (Exception e){
             return new ApiResponse(Boolean.FALSE,"Failed!");

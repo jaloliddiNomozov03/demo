@@ -7,12 +7,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import zako.uz.demo.entity.*;
-import zako.uz.demo.payload.ApiResponse;
-import zako.uz.demo.payload.NewsReq;
+import zako.uz.demo.payload.*;
 import zako.uz.demo.services.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -33,9 +33,8 @@ public class ClientController {
 
     //region FileController
     @PostMapping("/file/save")
-    public ResponseEntity<ApiResponse> superFileSave(@RequestParam(name = "file") MultipartFile multipartFile,
-                                                          @RequestParam Boolean auth){
-        return ResponseEntity.ok(attachmentService.save(multipartFile, auth));
+    public ResponseEntity<ApiResponse> superFileSave(@RequestParam(name = "file") MultipartFile multipartFile){
+        return ResponseEntity.ok(attachmentService.save(multipartFile));
     }
     @DeleteMapping("/file/delete/{hashCode}")
     public ResponseEntity<ApiResponse> superFileDelete(@PathVariable String hashCode){
@@ -53,13 +52,17 @@ public class ClientController {
     //endregion
 
     //Accountant controller
-    @PostMapping("/accountant/save")
-    public ResponseEntity<ApiResponse> accountantSave(@RequestBody Accountant accountant){
+    @PostMapping(value = "/accountant/save")
+    public ResponseEntity<ApiResponse> accountantSave(@RequestBody AccountantRequest accountant,
+                                                      @RequestParam(name = "files") List<MultipartFile> multipartFiles){
         return ResponseEntity.ok(accountantService.saveAccountant(accountant));
     }
     @PutMapping("/accountant/update/{accountantId}")
     public ResponseEntity<ApiResponse> accountantUpdateById(@PathVariable Long accountantId,
-                                                            @RequestBody Accountant accountant){
+                                                            @RequestBody AccountantRequest accountant,
+                                                            @RequestParam(name = "file") MultipartFile accountantAttachment,
+                                                            @RequestParam(name = "file") MultipartFile reportAttach
+                                                            ){
         return ResponseEntity.ok(accountantService.updateAccountant(accountant, accountantId));
     }
     @DeleteMapping("/accountant/delete/{accountantId}")
@@ -78,12 +81,15 @@ public class ClientController {
 
     //Advertisement controller
     @PostMapping("/advertisement/save")
-    public ResponseEntity<ApiResponse> advertisementSave(@RequestBody Advertisement advertisement){
-        return ResponseEntity.ok(advertisementService.saveAdvertisement(advertisement));
+    public ResponseEntity<String> advertisementSave(@RequestParam(name = "file") MultipartFile multipartFile,
+                                                         @RequestParam(name = "data") String advertisement){
+        System.out.println(advertisement);
+        return ResponseEntity.ok(attachmentService.save(multipartFile).getMessage());
+//        return ResponseEntity.ok(multipartFile);
     }
     @PutMapping("/advertisement/update/{advertisementId}")
     public ResponseEntity<ApiResponse> advertisementUpdateById(@PathVariable Long advertisementId,
-                                                            @RequestBody Advertisement advertisement){
+                                                                @RequestBody AdvertisementRequest advertisement){
         return ResponseEntity.ok(advertisementService.updateAdvertisement(advertisement, advertisementId));
     }
     @DeleteMapping("/advertisement/delete/{advertisementId}")
@@ -101,12 +107,12 @@ public class ClientController {
     // end
     //News controller
     @PostMapping("/news/save")
-    public ResponseEntity<ApiResponse> newsSave(@RequestBody News news){
+    public ResponseEntity<ApiResponse> newsSave(@RequestBody NewsReq news){
         return ResponseEntity.ok(newsService.saveNews(news));
     }
     @PutMapping("/news/update/{newsId}")
     public ResponseEntity<ApiResponse> newsUpdateById(@PathVariable Long newsId,
-                                                            @RequestBody NewsReq news){
+                                                      @RequestBody NewsReq news){
         return ResponseEntity.ok(newsService.updateNews(news, newsId));
     }
     @DeleteMapping("/news/delete/{newsId}")
@@ -125,12 +131,12 @@ public class ClientController {
 
     //Noun controller
     @PostMapping("/noun/save")
-    public ResponseEntity<ApiResponse> nounSave(@RequestBody Noun noun){
+    public ResponseEntity<ApiResponse> nounSave(@RequestBody NounRequest noun){
         return ResponseEntity.ok(nounService.saveNoun(noun));
     }
     @PutMapping("/noun/update/{nounId}")
     public ResponseEntity<ApiResponse> nounUpdateById(@PathVariable Long nounId,
-                                                            @RequestBody Noun noun){
+                                                            @RequestBody NounRequest noun){
         return ResponseEntity.ok(nounService.updateNoun(noun, nounId));
     }
     @DeleteMapping("/noun/delete/{nounId}")
@@ -148,12 +154,12 @@ public class ClientController {
     // end
      //Noun controller
     @PostMapping("/tenders/save")
-    public ResponseEntity<ApiResponse> tendersSave(@RequestBody Tenders tenders){
+    public ResponseEntity<ApiResponse> tendersSave(@RequestBody TenderRequest tenders){
         return ResponseEntity.ok(tenderService.saveTender(tenders));
     }
     @PutMapping("/tenders/update/{tendersId}")
     public ResponseEntity<ApiResponse> tendersUpdateById(@PathVariable Long tendersId,
-                                                            @RequestBody Tenders tenders){
+                                                            @RequestBody TenderRequest tenders){
         return ResponseEntity.ok(tenderService.updateTender(tenders, tendersId));
     }
     @DeleteMapping("/tenders/delete/{tendersId}")

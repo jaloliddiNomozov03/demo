@@ -2,8 +2,10 @@ package zako.uz.demo.services.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import zako.uz.demo.entity.Advertisement;
 import zako.uz.demo.exception.ResourceNotFoundException;
+import zako.uz.demo.payload.AdvertisementRequest;
 import zako.uz.demo.payload.ApiResponse;
 import zako.uz.demo.repository.AdvertisementRepository;
 import zako.uz.demo.services.AdvertisementService;
@@ -17,8 +19,15 @@ public class AdvertisementServiceImpl implements AdvertisementService {
     @Autowired
     private AttachmentService attachmentService;
     @Override
-    public ApiResponse saveAdvertisement(Advertisement advertisement) {
+    public ApiResponse saveAdvertisement(AdvertisementRequest advertisementRequest) {
         try {
+            Advertisement advertisement = new Advertisement();
+            advertisement.setAttachmentPdf(attachmentService.findByHashCode(advertisementRequest.getHashId()));
+            advertisement.setDate(advertisementRequest.getDate());
+            advertisement.setTitleRu(advertisementRequest.getTitleRu());
+            advertisement.setTitleUz(advertisementRequest.getTitleUz());
+            advertisement.setDescriptionUz(advertisementRequest.getDescriptionUz());
+            advertisement.setDescriptionRu(advertisementRequest.getDescriptionRu());
             advertisementRepository.save(advertisement);
             return new ApiResponse(Boolean.TRUE,"Successfully saved");
         }catch (Exception e){
@@ -27,16 +36,12 @@ public class AdvertisementServiceImpl implements AdvertisementService {
     }
 
     @Override
-    public ApiResponse updateAdvertisement(Advertisement advertisement, Long advertiseId) {
+    public ApiResponse updateAdvertisement(AdvertisementRequest advertisement, Long advertiseId) {
         try {
             Advertisement newAdvertise = advertisementRepository.findById(advertiseId)
                     .orElseThrow(()->new ResourceNotFoundException("Advertisement","id", advertiseId));
             newAdvertise.setId(advertiseId);
-            if (advertisement.getAttachmentPdf()!=null){
-                newAdvertise.setAttachmentPdf(attachmentService.findByHashCode(advertisement.getAttachmentPdf().getHashCode()));
-            }else {
-                newAdvertise.setAttachmentPdf(null);
-            }
+            newAdvertise.setAttachmentPdf(attachmentService.findByHashCode(advertisement.getHashId()));
             newAdvertise.setDescriptionUz(advertisement.getDescriptionUz());
             newAdvertise.setDescriptionRu(advertisement.getDescriptionRu());
             newAdvertise.setTitleUz(advertisement.getTitleUz());
@@ -50,9 +55,12 @@ public class AdvertisementServiceImpl implements AdvertisementService {
     }
 
     @Override
-    public ApiResponse deleteAdvertisement(Long newsId) {
+    public ApiResponse deleteAdvertisement(Long advertiseId) {
         try {
-            advertisementRepository.deleteById(newsId);
+            String hashId = advertisementRepository.findById(advertiseId)
+                    .orElseThrow(()->new ResourceNotFoundException("Advertisement","Id",advertiseId)).getAttachmentPdf().getHashCode();
+            advertisementRepository.deleteById(advertiseId);
+            attachmentService.delete(hashId);
             return new ApiResponse(Boolean.TRUE,"Success deleted");
         }catch (Exception e){
             return new ApiResponse(Boolean.FALSE,"Failed!");
