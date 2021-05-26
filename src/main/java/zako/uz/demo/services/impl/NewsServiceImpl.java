@@ -24,6 +24,7 @@ public class NewsServiceImpl implements NewsService {
             news.setDescriptionUz(newsReq.getDescriptionUz());
             news.setDescriptionRu(newsReq.getDescriptionRu());
             news.setAttachment(attachmentService.findByHashCode(newsReq.getHashCode()));
+            newsRepository.save(news);
             return new ApiResponse(Boolean.TRUE,"Successfully saved");
         }catch (Exception e){
             return new ApiResponse(Boolean.FALSE,"Failed");
