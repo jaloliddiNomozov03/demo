@@ -53,16 +53,12 @@ public class ClientController {
 
     //Accountant controller
     @PostMapping(value = "/accountant/save")
-    public ResponseEntity<ApiResponse> accountantSave(@RequestBody AccountantRequest accountant,
-                                                      @RequestParam(name = "files") List<MultipartFile> multipartFiles){
+    public ResponseEntity<ApiResponse> accountantSave(@RequestBody AccountantRequest accountant){
         return ResponseEntity.ok(accountantService.saveAccountant(accountant));
     }
     @PutMapping("/accountant/update/{accountantId}")
     public ResponseEntity<ApiResponse> accountantUpdateById(@PathVariable Long accountantId,
-                                                            @RequestBody AccountantRequest accountant,
-                                                            @RequestParam(name = "file") MultipartFile accountantAttachment,
-                                                            @RequestParam(name = "file") MultipartFile reportAttach
-                                                            ){
+                                                            @RequestBody AccountantRequest accountant){
         return ResponseEntity.ok(accountantService.updateAccountant(accountant, accountantId));
     }
     @DeleteMapping("/accountant/delete/{accountantId}")
