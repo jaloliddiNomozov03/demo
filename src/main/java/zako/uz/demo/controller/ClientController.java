@@ -77,7 +77,7 @@ public class ClientController {
 
     //Advertisement controller
     @PostMapping("/advertisement/save")
-    public ResponseEntity<ApiResponse> advertisementSave(@RequestParam(name = "data") AdvertisementRequest advertisement){
+    public ResponseEntity<ApiResponse> advertisementSave(@RequestBody AdvertisementRequest advertisement){
        return ResponseEntity.ok(advertisementService.saveAdvertisement(advertisement));
     }
     @PutMapping("/advertisement/update/{advertisementId}")
