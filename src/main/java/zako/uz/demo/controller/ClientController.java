@@ -77,11 +77,8 @@ public class ClientController {
 
     //Advertisement controller
     @PostMapping("/advertisement/save")
-    public ResponseEntity<String> advertisementSave(@RequestParam(name = "file") MultipartFile multipartFile,
-                                                         @RequestParam(name = "data") String advertisement){
-        System.out.println(advertisement);
-        return ResponseEntity.ok(attachmentService.save(multipartFile).getMessage());
-//        return ResponseEntity.ok(multipartFile);
+    public ResponseEntity<ApiResponse> advertisementSave(@RequestParam(name = "data") AdvertisementRequest advertisement){
+       return ResponseEntity.ok(advertisementService.saveAdvertisement(advertisement));
     }
     @PutMapping("/advertisement/update/{advertisementId}")
     public ResponseEntity<ApiResponse> advertisementUpdateById(@PathVariable Long advertisementId,

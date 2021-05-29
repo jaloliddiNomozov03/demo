@@ -22,12 +22,10 @@ public class AdvertisementServiceImpl implements AdvertisementService {
     public ApiResponse saveAdvertisement(AdvertisementRequest advertisementRequest) {
         try {
             Advertisement advertisement = new Advertisement();
-            advertisement.setAttachmentPdf(attachmentService.findByHashCode(advertisementRequest.getHashId()));
+            advertisement.setAttachmentPdf(attachmentService.findByHashCode(advertisementRequest.getHashCode()));
             advertisement.setDate(advertisementRequest.getDate());
             advertisement.setTitleRu(advertisementRequest.getTitleRu());
             advertisement.setTitleUz(advertisementRequest.getTitleUz());
-            advertisement.setDescriptionUz(advertisementRequest.getDescriptionUz());
-            advertisement.setDescriptionRu(advertisementRequest.getDescriptionRu());
             advertisementRepository.save(advertisement);
             return new ApiResponse(Boolean.TRUE,"Successfully saved");
         }catch (Exception e){
@@ -41,9 +39,7 @@ public class AdvertisementServiceImpl implements AdvertisementService {
             Advertisement newAdvertise = advertisementRepository.findById(advertiseId)
                     .orElseThrow(()->new ResourceNotFoundException("Advertisement","id", advertiseId));
             newAdvertise.setId(advertiseId);
-            newAdvertise.setAttachmentPdf(attachmentService.findByHashCode(advertisement.getHashId()));
-            newAdvertise.setDescriptionUz(advertisement.getDescriptionUz());
-            newAdvertise.setDescriptionRu(advertisement.getDescriptionRu());
+            newAdvertise.setAttachmentPdf(attachmentService.findByHashCode(advertisement.getHashCode()));
             newAdvertise.setTitleUz(advertisement.getTitleUz());
             newAdvertise.setTitleRu(advertisement.getTitleRu());
             newAdvertise.setDate(advertisement.getDate());

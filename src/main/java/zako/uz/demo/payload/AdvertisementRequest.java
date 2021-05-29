@@ -10,8 +10,6 @@ import lombok.NoArgsConstructor;
 public class AdvertisementRequest {
     private String titleUz;
     private String titleRu;
-    private String descriptionUz;
-    private String descriptionRu;
     private String date;
-    private String hashId;
+    private String hashCode;
 }

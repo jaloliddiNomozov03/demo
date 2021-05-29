@@ -18,8 +18,6 @@ public class Advertisement {
     private Long id;
     private String titleUz;
     private String titleRu;
-    private String descriptionUz;
-    private String descriptionRu;
     private String date;
     @OneToOne(fetch = FetchType.LAZY)
     private Attachment attachmentPdf;
