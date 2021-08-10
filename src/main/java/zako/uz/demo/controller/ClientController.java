@@ -12,7 +12,6 @@ import zako.uz.demo.services.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
 
 @CrossOrigin(origins = "*")
 @RestController
